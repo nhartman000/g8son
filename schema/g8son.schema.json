@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "required": ["g8son_version", "gates"],
+  "properties": {
+    "g8son_version": { "type": "string" },
+    "gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "order",
+          "definition",
+          "requirements",
+          "logic"
+        ]
+      }
+    }
+  }
+}
