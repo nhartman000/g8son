@@ -1,311 +1,114 @@
-G8SON (Gate Sequential Object Notation)
-
-A deterministic, auditable file format for sequential and logical decision gating,
-designed for legal reasoning, compliance systems, and high-assurance AI workflows.
-
-Here is a **production-grade README.md** for your `.g8son` spec repo.
-No fluff, positioned correctly for adoption, technical credibility, and future standardization.
-
-👉 Copy-paste directly.
-
----
-
-```markdown
 # G8SON — Gate Sequential Object Notation
 
-**Deterministic, auditable decision gating for AI and high-assurance systems**
+**G8SON** is Nicholas Hartman / American Milestone Inc.'s deterministic conditional-gate notation for bounded, auditable execution inside the MG8 file family.
 
----
+A `.g8son` file defines **1–3 gates maximum**. Gates evaluate structured state and contextual constraints supplied by `.gst`, determine whether a transform or continuation is admissible, and return a bounded status that orchestration can act upon.
 
-## Overview
+## Role in MG8
 
-G8SON (Gate Sequential Object Notation) is a structured file format for defining **sequential and logical decision gates** in systems where **traceability, accountability, and controlled reasoning** are required.
-
-It is designed to act as a **deterministic layer on top of probabilistic AI systems**, ensuring that every decision point is:
-
-- Explicit  
-- Traceable  
-- Reviewable  
-- Overrideable (by a human, with audit trail)
-
----
-
-## Why G8SON Exists
-
-Modern AI systems (LLMs) are inherently **stochastic**:
-
-- Outputs are non-deterministic  
-- Reasoning paths are opaque  
-- Errors are not reliably traceable  
-
-This creates a fundamental mismatch in domains such as:
-
-- Legal workflows  
-- Regulatory compliance  
-- Defense systems  
-- Financial decisioning  
-
-These domains require:
-
-- Deterministic execution  
-- Clear responsibility attribution  
-- Structured reasoning paths  
-
-**G8SON solves this by introducing a gate-based execution model.**
-
----
-
-## Core Concepts
-
-### 1. Gates
-
-A gate represents a **decision checkpoint**.
-
-Each gate evaluates input and produces:
-
-- `PASS`
-- `FAIL`
-- `INTERMEDIATE`
-
----
-
-### 2. Sequential Execution
-
-Gates are executed in order:
-
+```text
+.gst structured state/context
+        ↓
+.g8son conditional gate/operator
+        ↓
+PASS / FAIL / INTERMEDIATE
+        ↓
+.ork sequencing / branch decision
+        ↓
+.qson execution trace
 ```
 
-Gate 1 → Gate 2 → Gate 3
+G8SON is not the state store, orchestration file, or audit ledger:
 
+- `.gst` carries structured state and constraints.
+- `.g8son` defines bounded conditional gates/operators.
+- `.ork` determines execution order, branches, retries, and flow.
+- `.qson` records realized execution events.
+- `.mg8` binds these artifacts into a bounded execution unit.
+
+## Identity model
+
+G8SON distinguishes three identities:
+
+```text
+file_id != gate_id != trace_id
 ```
 
-Each gate contributes to the overall system outcome.
+- `file_id` identifies the `.g8son` document.
+- `gate_id` identifies a gate definition inside the file.
+- `trace_id` identifies one attempted execution of one gate.
 
----
+Repeated execution of the same gate therefore produces distinct trace events.
 
-### 3. Logic Gates
+## Gate count
 
-G8SON supports composable logic:
+A canonical `.g8son` file contains **one to three gates**. This keeps each file bounded and locally auditable rather than turning one file into an unbounded reasoning graph.
 
-- `AND`
-- `OR`
-- `NAND`
-- `NOR`
+## Gate results
 
-Example:
+The canonical result space is:
 
-```
+- `PASS` — the gate's required conditions are satisfied.
+- `FAIL` — the gate's required conditions are not satisfied.
+- `INTERMEDIATE` — the gate cannot resolve to PASS/FAIL without additional state, a bounded local reasoning step, an override, human input, or another declared continuation.
 
-valid_case = AND(jurisdiction, standing)
+`INTERMEDIATE` is not implicit permission to continue. The `.ork` flow or gate policy must explicitly define what happens next.
 
-````
+## Gate content
 
----
+A gate may include:
 
-### 4. Human Override
+- ordered requirements or conditions,
+- references into `.gst` state,
+- deterministic logic operators,
+- precedent/context references,
+- bounded dialogue or reasoning injection,
+- explicit overrides,
+- branch destinations,
+- human-decision requirements,
+- local metadata needed for traceability.
 
-Gates that return:
+These richer fields are optional and profile-dependent; they do not change the one-to-three-gate file bound.
 
-- `FAIL`
-- `INTERMEDIATE`
-
-can require:
-
-> **Explicit human decision to proceed**
-
-This creates:
-
-- accountability  
-- liability trace  
-- defensible audit record  
-
----
-
-### 5. Auditability
-
-Every gate evaluation is designed to produce:
-
-- decision result  
-- reasoning context  
-- risk exposure  
-
-This enables:
-
-> **post-hoc verification of decision chains**
-
----
-
-## File Structure
-
-A `.g8son` file is a JSON-based structure:
+## Minimal example
 
 ```json
 {
+  "g8son_version": "1.0",
+  "file_id": "example.eligibility.001",
   "gates": [
     {
-      "id": "jurisdiction",
+      "gate_id": "object_confidence",
       "order": 1,
-      "type": "atomic",
-      "name": "Jurisdiction Check",
-      "description": "Verify court authority",
-      "requirements": [
-        "Jurisdiction clause present",
-        "Venue properly established"
-      ]
-    },
-    {
-      "id": "standing",
-      "order": 2,
-      "type": "atomic"
-    },
-    {
-      "id": "valid_case",
-      "type": "logic",
-      "operator": "AND",
-      "inputs": ["jurisdiction", "standing"]
-    }
-  ]
-}
-````
-
----
-
-## Gate Types
-
-### Atomic Gate
-
-Evaluated via:
-
-* LLM
-* Rule engine
-* External system
-
-```json
-{
-  "type": "atomic"
-}
-```
-
----
-
-### Logic Gate
-
-Combines prior gate results:
-
-```json
-{
-  "type": "logic",
-  "operator": "AND",
-  "inputs": ["gate_a", "gate_b"]
-}
-```
-
----
-
-## Execution Model
-
-1. Load `.g8son` file
-2. Evaluate **atomic gates**
-3. Resolve **logic gates deterministically**
-4. Aggregate final status:
-
-   * PASS
-   * FAIL
-   * INTERMEDIATE
-5. Flag gates requiring human decision
-6. Produce audit output
-
----
-
-## Status Resolution Rules
-
-### PASS
-
-All required conditions satisfied.
-
-### FAIL
-
-Critical requirement not met.
-
-### INTERMEDIATE
-
-Ambiguous, incomplete, or risk-dependent.
-
----
-
-## Example Output
-
-```json
-{
-  "final_status": "INTERMEDIATE",
-  "gates": [
-    {
-      "gate_id": "jurisdiction",
-      "status": "PASS"
-    },
-    {
-      "gate_id": "standing",
-      "status": "INTERMEDIATE",
-      "requires_human_decision": true
+      "type": "AND",
+      "conditions": [
+        "object_detected",
+        "confidence > 0.9"
+      ],
+      "outcomes": {
+        "PASS": "continue",
+        "FAIL": "stop",
+        "INTERMEDIATE": "review"
+      }
     }
   ]
 }
 ```
 
----
+The example is intentionally generic. Domain behavior belongs in authored gate/state files rather than in the G8SON standard itself.
 
-## Use Cases
+## Audit relationship
 
-* Legal document review
-* Contract validation
-* Regulatory compliance workflows
-* Due diligence pipelines
-* AI governance layers
-* Defense / mission-critical decision systems
+Every attempted gate execution should produce a `.qson` event with its own `trace_id`, linked back to the relevant `file_id`, `gate_id`, input-state reference, result, and execution context.
 
----
+## Repository structure
 
-## Design Principles
+- [`spec/g8son_v1.md`](spec/g8son_v1.md) — canonical G8SON v1 specification
+- [`schema/g8son.schema.json`](schema/g8son.schema.json) — bounded file-schema contract
+- [`examples/basic.g8son`](examples/basic.g8son) — minimal one-gate example
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — G8SON execution and identity architecture
+- [`docs/PROVENANCE.md`](docs/PROVENANCE.md) — provenance and scope notes
 
-* Determinism over inference
-* Explicit over implicit
-* Traceability over convenience
-* Human accountability over automation
+## Status
 
----
-
-## Reference Implementation
-
-A Python reference executor is included:
-
-```
-reference_executor/python_executor.py
-```
-
-This demonstrates:
-
-* gate evaluation
-* logic resolution
-* structured output
-
----
-
-## Versioning
-
-```
-v0.1 — Sequential gating
-v0.2 — Logic gates
-v0.3 — Human override
-v1.0 — Stable spec
-```
-
----
-
-## Future Direction
-
-* Schema standardization
-* Multi-language executors
-* IDE integration
-* Native AI model support
-* Regulatory framework alignment
-```
+This repository defines the generic G8SON standard. Domain-specific policy, legal logic, defense logic, compliance logic, model prompts, or application-specific reasoning should be authored in separate `.g8son`/`.gst` content rather than hard-coded into the file-format standard.
