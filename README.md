@@ -112,3 +112,7 @@ Every attempted gate execution should produce a `.qson` event with its own `trac
 ## Status
 
 This repository defines the generic G8SON standard. Domain-specific policy, legal logic, defense logic, compliance logic, model prompts, or application-specific reasoning should be authored in separate `.g8son`/`.gst` content rather than hard-coded into the file-format standard.
+
+## License
+
+Copyright (c) 2026 American Milestone Inc. All rights reserved. Original code and independently authored specifications are publicly viewable for evaluation only — see [LICENSE](LICENSE). Copies obtained earlier under the previous MIT license keep the rights that license granted.
